@@ -20,7 +20,8 @@
   <div id="my_pdf_viewer">
     <div id="container"></div>
     <div id="canvas_container">
-      <canvas id="pdf_renderer"></canvas>
+      <div class="draggable"><p>Jabaja sign</p></div>
+      <canvas id="pdf_renderer" ></canvas>
     </div>
     <div id="navigation_controls">
       <button id="go_previous">Previous</button>
@@ -34,54 +35,11 @@
   </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script>
-<script src="https://unpkg.com/konva@4.2.2/konva.min.js"></script>
+<script src="https://unpkg.com/interactjs/dist/interact.min.js"></script>
 <script type="text/javascript" src="http://code.jquery.com/jquery.min.js">  </script>
 <script>
 
-  // var width2 = window.innerWidth;
-  // var height2 = window.innerHeight;
 
-  // var stage = new Konva.Stage({
-  //       container: 'canvas_container',
-  //       width: width2,
-  //       height: height2
-  // });
-
-  // var layer = new Konva.Layer();
-  // stage.add(layer);
-
-  // var canvas = document.getElementById("pdf_renderer"); // document.createElement('canvas');
-  
-  // var context = canvas.getContext('2d');
-
-
-  // var imageObj = new Image();
-  // var yoda;
-  // imageObj.onload = function() {
-  //       yoda = new Konva.Image({
-  //         draggable: true,
-  //         x: 50,
-  //         y: 50,
-  //         image: imageObj,
-  //         width: 106,
-  //         height: 118
-  //       });
-
-  //       // add the shape to the layer
-  //       layer.add(yoda);
-  //       layer.batchDraw();
-  // };
-  // imageObj.src = './yoda.jpg';
-  // imageObj.id = 'yoda';
-
-  // stage.on("dragmove", function(e) {
-  //   var pos =  stage.getPointerPosition();
-  //   console.log(pos);
-  // });
-
-  // layer.batchDraw();
-
-  // =========================== pdf;
   var myState = {
       pdf: null,
       currentPage: 1,
@@ -101,72 +59,9 @@
       var viewport = page.getViewport(myState.zoom);
       var width = viewport.width;
       var height = viewport.height;
-
-      // =====
-      // var stage = new Konva.Stage({
-      //   container: 'canvas_container',
-      //   width: width,
-      //   height: height
-      // });
-
-      var layer = new Konva.Layer();
-      // stage.add(layer);
-
       var canvas = document.getElementById("pdf_renderer");
-      
-      // var canvas = document.createElement('canvas');
- 
-      // console.log(canvas);
       var ctx = canvas.getContext('2d');
-      var isDragging=false;
-      var canvasOffset=$("#pdf_renderer").offset();
-      var offsetX=canvasOffset.left;
-      var offsetY=canvasOffset.top;
-      var canvasWidth=canvas.width;
-      var canvasHeight=canvas.height;
 
-
-      var imageObj = new Image();
-      imageObj.src = '/yoda.jpg';
-      imageObj.id = 'yoda';
-      // imageObj.draggable = true;
-      // imageObj.onClick = function() {
-      //   console.log("S");
-      // };
-      // imageObj.ondragstart = function(e) {
-      //   console.log(e.x, e.y);
-      // };
-
-      var yoda;
-      imageObj.onload = function() {
-        ctx.drawImage(imageObj, 0, 0);
-            // yoda = new Konva.Image({
-            //   draggable: true,
-            //   x: 50,
-            //   y: 50,
-            //   image: imageObj,
-            //   width: 106,
-            //   height: 118
-            // });
-
-            // add the shape to the layer
-            // layer.add(yoda);
-            // layer.batchDraw();
-      };
-      
-
-      // stage.on("dragmove", function(e) {
-      //   var pos =  stage.getPointerPosition();
-      //   console.log(pos);
-      // });
-      // =====
-
-      //console.log("canvas", canvas);
-      // var canvas = document.getElementById("pdf_renderer");
-      // var canvas = document.createElement('canvas');
-      // var ctx = canvas.getContext('2d');
-      // console.log(canvas);
-      // var ctx = context;
 
       canvas.width = viewport.width;
       canvas.height = viewport.height;
@@ -178,53 +73,61 @@
         canvasContext: ctx,
         viewport: viewport
       });
- 
-      // =========================
-      function handleMouseDown(e){
-        canMouseX=parseInt(e.clientX-offsetX);
-        canMouseY=parseInt(e.clientY-offsetY);
-        // set the drag flag
-        isDragging=true;
-      }
-
-      function handleMouseUp(e){
-        canMouseX=parseInt(e.clientX-offsetX);
-        canMouseY=parseInt(e.clientY-offsetY);
-        // clear the drag flag
-        isDragging=false;
-      }
-
-      function handleMouseOut(e){
-        canMouseX=parseInt(e.clientX-offsetX);
-        canMouseY=parseInt(e.clientY-offsetY);
-        // user has left the canvas, so clear the drag flag
-        //isDragging=false;
-      }
-
-      function handleMouseMove(e){
-        canMouseX=parseInt(e.clientX-offsetX);
-        canMouseY=parseInt(e.clientY-offsetY);
-        // if the drag flag is set, clear the canvas and draw the image
-
-        console.log(canMouseX, canMouseY);
-        if(isDragging){
-            ctx.clearRect(0,0,canvasWidth,canvasHeight);
-            ctx.drawImage(imageObj,canMouseX-128/2,canMouseY-120/2,128,120);
-        }
-      }
-      // =========================
-
-      $("#pdf_renderer").mousedown(function(e){handleMouseDown(e);});
-      $("#pdf_renderer").mousemove(function(e){handleMouseMove(e);});
-      $("#pdf_renderer").mouseup(function(e){handleMouseUp(e);});
-      $("#pdf_renderer").mouseout(function(e){handleMouseOut(e);});
-
-      // ========================
 
     });
   }
 
-  document.getElementById("pdf_renderer").m
+
+  interact('.draggable')
+    .draggable({
+      // enable inertial throwing
+      inertia: true,
+      // keep the element within the area of it's parent
+      modifiers: [
+        interact.modifiers.restrictRect({
+          restriction: '#pdf_renderer',
+          endOnly: true
+        })
+      ],
+      // enable autoScroll
+      autoScroll: true,
+
+      listeners: {
+        // call this function on every dragmove event
+        move: dragMoveListener,
+
+        // call this function on every dragend event
+        end (event) {
+          var textEl = event.target.querySelector('p')
+          console.log(textEl);
+          textEl && (textEl.textContent =
+            'Jabaja pindah sejauh ' +
+            (Math.sqrt(Math.pow(event.pageX - event.x0, 2) +
+                      Math.pow(event.pageY - event.y0, 2) | 0))
+              .toFixed(2) + 'px')
+        }
+      }
+    })
+
+  function dragMoveListener (event) {
+    var target = event.target
+    // keep the dragged position in the data-x/data-y attributes
+    var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+    var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+
+    console.log(x, y);
+    // translate the element
+    target.style.webkitTransform =
+      target.style.transform =
+        'translate(' + x + 'px, ' + y + 'px)'
+
+    // update the posiion attributes
+    target.setAttribute('data-x', x)
+    target.setAttribute('data-y', y)
+  }
+
+// this function is used later in the resizing and gesture demos
+  window.dragMoveListener = dragMoveListener  
 
 
   document.getElementById('go_previous')
