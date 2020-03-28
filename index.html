@@ -35,6 +35,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script>
 <script src="https://unpkg.com/konva@4.2.2/konva.min.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery.min.js">  </script>
 <script>
 
   // var width2 = window.innerWidth;
@@ -108,34 +109,51 @@
       //   height: height
       // });
 
-      // var layer = new Konva.Layer();
+      var layer = new Konva.Layer();
       // stage.add(layer);
 
-      // // document.getElementById("pdf_renderer"); // 
+      var canvas = document.getElementById("pdf_renderer");
+      
       // var canvas = document.createElement('canvas');
  
       // console.log(canvas);
-      // var ctx = canvas.getContext('2d');
+      var ctx = canvas.getContext('2d');
+      var isDragging=false;
+      var canvasOffset=$("#pdf_renderer").offset();
+      var offsetX=canvasOffset.left;
+      var offsetY=canvasOffset.top;
+      var canvasWidth=canvas.width;
+      var canvasHeight=canvas.height;
 
 
-      // var imageObj = new Image();
-      // var yoda;
-      // imageObj.onload = function() {
-      //       yoda = new Konva.Image({
-      //         draggable: true,
-      //         x: 50,
-      //         y: 50,
-      //         image: imageObj,
-      //         width: 106,
-      //         height: 118
-      //       });
-
-      //       // add the shape to the layer
-      //       // layer.add(yoda);
-      //       // layer.batchDraw();
+      var imageObj = new Image();
+      imageObj.src = '/yoda.jpg';
+      imageObj.id = 'yoda';
+      // imageObj.draggable = true;
+      // imageObj.onClick = function() {
+      //   console.log("S");
       // };
-      // imageObj.src = './yoda.jpg';
-      // imageObj.id = 'yoda';
+      // imageObj.ondragstart = function(e) {
+      //   console.log(e.x, e.y);
+      // };
+
+      var yoda;
+      imageObj.onload = function() {
+        ctx.drawImage(imageObj, 0, 0);
+            // yoda = new Konva.Image({
+            //   draggable: true,
+            //   x: 50,
+            //   y: 50,
+            //   image: imageObj,
+            //   width: 106,
+            //   height: 118
+            // });
+
+            // add the shape to the layer
+            // layer.add(yoda);
+            // layer.batchDraw();
+      };
+      
 
       // stage.on("dragmove", function(e) {
       //   var pos =  stage.getPointerPosition();
@@ -144,9 +162,9 @@
       // =====
 
       //console.log("canvas", canvas);
-      var canvas = document.getElementById("pdf_renderer");
+      // var canvas = document.getElementById("pdf_renderer");
       // var canvas = document.createElement('canvas');
-      var ctx = canvas.getContext('2d');
+      // var ctx = canvas.getContext('2d');
       // console.log(canvas);
       // var ctx = context;
 
@@ -161,9 +179,52 @@
         viewport: viewport
       });
  
+      // =========================
+      function handleMouseDown(e){
+        canMouseX=parseInt(e.clientX-offsetX);
+        canMouseY=parseInt(e.clientY-offsetY);
+        // set the drag flag
+        isDragging=true;
+      }
+
+      function handleMouseUp(e){
+        canMouseX=parseInt(e.clientX-offsetX);
+        canMouseY=parseInt(e.clientY-offsetY);
+        // clear the drag flag
+        isDragging=false;
+      }
+
+      function handleMouseOut(e){
+        canMouseX=parseInt(e.clientX-offsetX);
+        canMouseY=parseInt(e.clientY-offsetY);
+        // user has left the canvas, so clear the drag flag
+        //isDragging=false;
+      }
+
+      function handleMouseMove(e){
+        canMouseX=parseInt(e.clientX-offsetX);
+        canMouseY=parseInt(e.clientY-offsetY);
+        // if the drag flag is set, clear the canvas and draw the image
+
+        console.log(canMouseX, canMouseY);
+        if(isDragging){
+            ctx.clearRect(0,0,canvasWidth,canvasHeight);
+            ctx.drawImage(imageObj,canMouseX-128/2,canMouseY-120/2,128,120);
+        }
+      }
+      // =========================
+
+      $("#pdf_renderer").mousedown(function(e){handleMouseDown(e);});
+      $("#pdf_renderer").mousemove(function(e){handleMouseMove(e);});
+      $("#pdf_renderer").mouseup(function(e){handleMouseUp(e);});
+      $("#pdf_renderer").mouseout(function(e){handleMouseOut(e);});
+
+      // ========================
+
     });
   }
 
+  document.getElementById("pdf_renderer").m
 
 
   document.getElementById('go_previous')
